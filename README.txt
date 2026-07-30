@@ -58,6 +58,19 @@ reminder banner while the app is open — but note this ONLY works
 while the app is open on your screen; it can't wake your phone up
 on its own. The calendar file is the reliable way to get notified.
 
+SUMMARY TAB
+===========
+Tap "Summary" at the top (next to "Accounts") to see:
+  - Totals across all your loans: total borrowed, paid so far,
+    remaining, and the date you'll be debt-free
+  - A year-by-year table of what you'll pay and what's left,
+    collapsing years where nothing changes into a single range
+    (e.g. "2029-2055") so it stays readable even for a 30-year loan
+
+Note: remaining-balance figures are an approximation for interest-
+bearing loans like Pag-IBIG, since the app only tracks how many
+payments you've made, not the bank's real amortization schedule.
+
 
 To update it later (e.g. change a loan amount for everyone, not just
 yourself), edit the files and re-upload them the same way in Step 3.

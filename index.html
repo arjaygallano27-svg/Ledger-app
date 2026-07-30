@@ -55,13 +55,26 @@
     <div class="toolbar-note">The calendar file works even when this app is closed — install it once on your phone. In-app notifications only fire while this app is open, as a bonus reminder.</div>
   </div>
 
-  <div class="section-heading">
-    <span class="lg-eyebrow">Accounts</span>
-    <button class="lg-btn lg-btn-primary" id="add-account-btn">+ Add account</button>
+  <div class="view-tabs">
+    <button class="view-tab active" id="tab-accounts">Accounts</button>
+    <button class="view-tab" id="tab-summary">Summary</button>
   </div>
 
-  <div id="add-form-container"></div>
-  <div id="accounts-list"></div>
+  <div id="accounts-view">
+    <div class="section-heading">
+      <span class="lg-eyebrow">Accounts</span>
+      <button class="lg-btn lg-btn-primary" id="add-account-btn">+ Add account</button>
+    </div>
+    <div id="add-form-container"></div>
+    <div id="accounts-list"></div>
+  </div>
+
+  <div id="summary-view" class="hidden">
+    <div class="lg-eyebrow" style="margin-bottom:10px;">Summary</div>
+    <div id="summary-totals"></div>
+    <div class="lg-eyebrow" style="margin:20px 0 10px;">Year by year</div>
+    <div id="summary-yearly"></div>
+  </div>
 </div>
 
 <div id="lightbox" class="lightbox hidden"></div>

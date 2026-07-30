@@ -15,7 +15,7 @@
   };
 
   var state = null;
-  var ui = { expandedId: null, showAdd: false, showSettings: false, addType: "loan" };
+  var ui = { expandedId: null, showAdd: false, showSettings: false, addType: "loan", view: "accounts" };
 
   // ---------- persistence ----------
   function load() {
@@ -110,6 +110,14 @@
 
   // ---------- due-date math ----------
   function stripTime(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+  // Remaining balance approximated proportionally to payments completed vs term.
+  // (Straight cash-paid subtraction breaks down for interest-bearing loans like
+  // Pag-IBIG once projected many years out, since payments include interest.)
+  function loanRemaining(a, paidCount) {
+    var term = Number(a.term) || 1;
+    var frac = Math.min(1, Math.max(0, Number(paidCount)) / term);
+    return Math.max(0, Number(a.total) * (1 - frac));
+  }
   function nextOccurrence(now, dueDay) {
     var y = now.getFullYear(), m = now.getMonth();
     var daysInMonth = new Date(y, m + 1, 0).getDate();
@@ -126,6 +134,97 @@
     return state.accounts.filter(function (a) {
       return a.type === "recurring" || Number(a.paid) < Number(a.term);
     });
+  }
+
+  // ---------- summary view ----------
+  function overallTotals() {
+    var totalBorrowed = 0, totalPaidSoFar = 0, totalRemaining = 0;
+    var latestPayoff = null;
+    var now = new Date();
+    state.accounts.forEach(function (a) {
+      if (a.type !== "loan") return;
+      totalBorrowed += Number(a.total);
+      totalPaidSoFar += Number(a.paid) * Number(a.monthly);
+      totalRemaining += loanRemaining(a, a.paid);
+      var remainingPayments = Math.max(0, Number(a.term) - Number(a.paid));
+      if (remainingPayments > 0) {
+        var payoff = addMonths(now, remainingPayments - 1);
+        if (!latestPayoff || payoff > latestPayoff) latestPayoff = payoff;
+      }
+    });
+    return { totalBorrowed: totalBorrowed, totalPaidSoFar: totalPaidSoFar, totalRemaining: totalRemaining, debtFreeDate: latestPayoff };
+  }
+
+  function buildYearlyProjection() {
+    var now = new Date();
+    var horizon = 1;
+    state.accounts.forEach(function (a) {
+      if (a.type === "loan") horizon = Math.max(horizon, Math.max(0, Number(a.term) - Number(a.paid)));
+    });
+    var yearMap = {}, order = [];
+    for (var i = 0; i < horizon; i++) {
+      var d = addMonths(now, i), y = d.getFullYear();
+      if (!yearMap[y]) { yearMap[y] = { total: 0, remainingAtEnd: 0, compParts: [] }; order.push(y); }
+      var monthTotal = 0, compParts = [];
+      state.accounts.forEach(function (a) {
+        if (a.type === "recurring") {
+          monthTotal += Number(a.monthly);
+          compParts.push(a.id);
+        } else {
+          var paymentNo = Number(a.paid) + i + 1;
+          if (paymentNo <= Number(a.term)) { monthTotal += Number(a.monthly); compParts.push(a.id); }
+        }
+      });
+      yearMap[y].total += monthTotal;
+      yearMap[y].compParts = compParts.slice().sort();
+      var remainSum = 0;
+      state.accounts.forEach(function (a) {
+        if (a.type !== "loan") return;
+        var paidCount = Math.min(Number(a.term), Number(a.paid) + i + 1);
+        remainSum += loanRemaining(a, paidCount);
+      });
+      yearMap[y].remainingAtEnd = remainSum;
+    }
+    var rows = [];
+    order.forEach(function (y) {
+      var yr = yearMap[y];
+      var key = Math.round(yr.total) + "|" + yr.compParts.join(",");
+      var last = rows[rows.length - 1];
+      if (last && last.key === key) {
+        last.endYear = y;
+        last.endRemaining = yr.remainingAtEnd;
+      } else {
+        rows.push({ startYear: y, endYear: y, total: yr.total, endRemaining: yr.remainingAtEnd, key: key });
+      }
+    });
+    return rows;
+  }
+
+  function renderSummary() {
+    var t = overallTotals();
+    var totalsEl = document.getElementById("summary-totals");
+    var debtFreeLabel = t.debtFreeDate ? monthLabel(t.debtFreeDate) : "All loans paid off";
+    totalsEl.innerHTML =
+      '<div class="summary-grid">' +
+      statHtml("Total borrowed", pesoShort(t.totalBorrowed)) +
+      statHtml("Paid so far", pesoShort(t.totalPaidSoFar)) +
+      statHtml("Remaining", pesoShort(t.totalRemaining)) +
+      statHtml("Debt-free by", debtFreeLabel) +
+      "</div>" +
+      '<div class="toolbar-note">Remaining-balance figures are approximate for interest-bearing loans (like Pag-IBIG) since only the payment count is tracked exactly, not the real amortization schedule.</div>';
+
+    var rows = buildYearlyProjection();
+    var yearlyEl = document.getElementById("summary-yearly");
+    var html = '<table class="year-table"><thead><tr><th>Year</th><th>Paid that year</th><th>Remaining by year-end</th></tr></thead><tbody>';
+    rows.forEach(function (r) {
+      var label = r.startYear === r.endYear ? String(r.startYear) : (r.startYear + "\u2013" + r.endYear);
+      html += "<tr><td class=\"year-label\">" + esc(label) + "</td><td>" + esc(pesoShort(r.total)) + (r.startYear !== r.endYear ? "/yr" : "") + "</td><td>" + esc(pesoShort(r.endRemaining)) + "</td></tr>";
+    });
+    html += "</tbody></table>";
+    yearlyEl.innerHTML = html;
+  }
+  function statHtml(label, value) {
+    return '<div class="summary-stat"><div class="stat-label">' + esc(label) + '</div><div class="stat-value">' + esc(value) + "</div></div>";
   }
 
   // ---------- ICS calendar export ----------
@@ -454,7 +553,7 @@
 
   function accountCardHtml(a) {
     var isLoan = a.type === "loan";
-    var remaining = isLoan ? Math.max(0, Number(a.total) - Number(a.paid) * Number(a.monthly)) : null;
+    var remaining = isLoan ? loanRemaining(a, a.paid) : null;
     var pct = isLoan ? Math.min(1, Number(a.paid) / Number(a.term)) : 0;
     var segments = 24, filled = Math.round(pct * segments);
     var paidOff = isLoan && Number(a.paid) >= Number(a.term);
@@ -593,6 +692,7 @@
     renderChart();
     renderAddForm();
     renderAccounts();
+    if (ui.view === "summary") renderSummary();
   }
 
   function bootUI() {
@@ -602,6 +702,16 @@
     };
     document.getElementById("download-ics-btn").onclick = downloadICS;
     document.getElementById("enable-notif-btn").onclick = enableNotifications;
+    document.getElementById("tab-accounts").onclick = function () { switchView("accounts"); };
+    document.getElementById("tab-summary").onclick = function () { switchView("summary"); };
+  }
+  function switchView(view) {
+    ui.view = view;
+    document.getElementById("tab-accounts").classList.toggle("active", view === "accounts");
+    document.getElementById("tab-summary").classList.toggle("active", view === "summary");
+    document.getElementById("accounts-view").classList.toggle("hidden", view !== "accounts");
+    document.getElementById("summary-view").classList.toggle("hidden", view !== "summary");
+    if (view === "summary") renderSummary();
   }
 
   document.addEventListener("DOMContentLoaded", function () {
