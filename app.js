@@ -6,6 +6,7 @@
   var DEFAULT_DATA = {
     salaryUSD: 1500,
     rate: 58,
+    paymentLogs: {},
     accounts: [
       { id: "a1", name: "Pag-IBIG Housing Loan", type: "loan", monthly: 8433.55, dueDay: 21, total: 1548120, term: 360, start: "2026-06", paid: 2 },
       { id: "a2", name: "Phirst Park Homes — Loan Diff.", type: "loan", monthly: 10050.77, dueDay: 30, total: 241218.45, term: 24, start: "2026-03", paid: 4 },
@@ -21,7 +22,11 @@
   function load() {
     try {
       var raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) return JSON.parse(raw);
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        if (!parsed.paymentLogs) parsed.paymentLogs = {};
+        return parsed;
+      }
     } catch (e) {}
     return JSON.parse(JSON.stringify(DEFAULT_DATA));
   }
@@ -225,6 +230,75 @@
   }
   function statHtml(label, value) {
     return '<div class="summary-stat"><div class="stat-label">' + esc(label) + '</div><div class="stat-value">' + esc(value) + "</div></div>";
+  }
+
+  // ---------- monthly breakdown table ----------
+  function ymKey(d) { return d.getFullYear() + "-" + pad2(d.getMonth() + 1); }
+  function setPaymentLog(accountId, ym, dateStr) {
+    var key = accountId + "|" + ym;
+    if (dateStr) state.paymentLogs[key] = dateStr;
+    else delete state.paymentLogs[key];
+    save();
+  }
+  function getPaymentLog(accountId, ym) {
+    return state.paymentLogs[accountId + "|" + ym] || "";
+  }
+
+  function renderMonthly() {
+    var now = new Date();
+    var horizon = 36;
+    var accounts = state.accounts;
+    var table = document.getElementById("monthly-table");
+
+    var thead = '<thead><tr><th class="month-col">Month</th>';
+    accounts.forEach(function (a) {
+      if (a.type === "loan") {
+        thead += "<th>" + esc(a.name) + "<br>date paid</th><th>" + esc(a.name) + "<br>payment</th><th>" + esc(a.name) + "<br>balance</th>";
+      } else {
+        thead += "<th>" + esc(a.name) + "</th>";
+      }
+    });
+    thead += "<th>Total</th><th>Salary</th><th>Net</th></tr></thead>";
+
+    var salary = salaryPHP();
+    var rowsHtml = "<tbody>";
+    for (var i = 0; i < horizon; i++) {
+      var d = addMonths(now, i), ym = ymKey(d);
+      var total = 0;
+      var cellsHtml = "";
+      accounts.forEach(function (a) {
+        if (a.type === "recurring") {
+          total += Number(a.monthly);
+          cellsHtml += "<td>" + esc(peso(a.monthly)) + "</td>";
+        } else {
+          var paymentNo = Number(a.paid) + i + 1;
+          var due = paymentNo <= Number(a.term);
+          var amount = due ? Number(a.monthly) : 0;
+          var paidCount = Math.min(Number(a.term), paymentNo);
+          var balance = loanRemaining(a, paidCount);
+          total += amount;
+          var logged = getPaymentLog(a.id, ym);
+          if (due) {
+            cellsHtml += '<td><input type="date" data-acc="' + a.id + '" data-ym="' + ym + '" value="' + esc(logged) + '"></td>';
+            cellsHtml += "<td>" + esc(peso(amount)) + "</td>";
+          } else {
+            cellsHtml += '<td class="dash">\u2014</td><td class="dash">\u2014</td>';
+          }
+          cellsHtml += "<td>" + esc(pesoShort(balance)) + "</td>";
+        }
+      });
+      var net = salary - total;
+      rowsHtml += '<tr><td class="month-cell">' + esc(monthLabel(d)) + "</td>" + cellsHtml +
+        '<td class="total-col">' + esc(pesoShort(total)) + "</td><td>" + esc(pesoShort(salary)) + '</td><td class="net-col">' + esc(pesoShort(net)) + "</td></tr>";
+    }
+    rowsHtml += "</tbody>";
+
+    table.innerHTML = thead + rowsHtml;
+    table.querySelectorAll('input[type="date"]').forEach(function (inp) {
+      inp.onchange = function (e) {
+        setPaymentLog(e.target.getAttribute("data-acc"), e.target.getAttribute("data-ym"), e.target.value);
+      };
+    });
   }
 
   // ---------- ICS calendar export ----------
@@ -693,6 +767,7 @@
     renderAddForm();
     renderAccounts();
     if (ui.view === "summary") renderSummary();
+    if (ui.view === "monthly") renderMonthly();
   }
 
   function bootUI() {
@@ -704,14 +779,18 @@
     document.getElementById("enable-notif-btn").onclick = enableNotifications;
     document.getElementById("tab-accounts").onclick = function () { switchView("accounts"); };
     document.getElementById("tab-summary").onclick = function () { switchView("summary"); };
+    document.getElementById("tab-monthly").onclick = function () { switchView("monthly"); };
   }
   function switchView(view) {
     ui.view = view;
     document.getElementById("tab-accounts").classList.toggle("active", view === "accounts");
     document.getElementById("tab-summary").classList.toggle("active", view === "summary");
+    document.getElementById("tab-monthly").classList.toggle("active", view === "monthly");
     document.getElementById("accounts-view").classList.toggle("hidden", view !== "accounts");
     document.getElementById("summary-view").classList.toggle("hidden", view !== "summary");
+    document.getElementById("monthly-view").classList.toggle("hidden", view !== "monthly");
     if (view === "summary") renderSummary();
+    if (view === "monthly") renderMonthly();
   }
 
   document.addEventListener("DOMContentLoaded", function () {

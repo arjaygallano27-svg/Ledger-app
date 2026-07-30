@@ -58,6 +58,7 @@
   <div class="view-tabs">
     <button class="view-tab active" id="tab-accounts">Accounts</button>
     <button class="view-tab" id="tab-summary">Summary</button>
+    <button class="view-tab" id="tab-monthly">Monthly</button>
   </div>
 
   <div id="accounts-view">
@@ -74,6 +75,12 @@
     <div id="summary-totals"></div>
     <div class="lg-eyebrow" style="margin:20px 0 10px;">Year by year</div>
     <div id="summary-yearly"></div>
+  </div>
+
+  <div id="monthly-view" class="hidden">
+    <div class="lg-eyebrow" style="margin-bottom:10px;">Monthly breakdown, next 36 months</div>
+    <div class="monthly-note">Log the date you actually paid in the date box under each payment — it's just for your records, it doesn't affect the balances.</div>
+    <div class="table-scroll"><table class="monthly-table" id="monthly-table"></table></div>
   </div>
 </div>
 

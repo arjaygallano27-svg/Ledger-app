@@ -71,6 +71,14 @@ Note: remaining-balance figures are an approximation for interest-
 bearing loans like Pag-IBIG, since the app only tracks how many
 payments you've made, not the bank's real amortization schedule.
 
+MONTHLY TAB
+===========
+Tap "Monthly" for a detailed month-by-month table (36 months ahead) -
+one row per month, one set of columns per loan showing the payment
+amount and running remaining balance, plus a date box where you can
+log the actual date you paid (for your own records only, it doesn't
+change any calculations). Scroll sideways to see every column.
+
 
 To update it later (e.g. change a loan amount for everyone, not just
 yourself), edit the files and re-upload them the same way in Step 3.
