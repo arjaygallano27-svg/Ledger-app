@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+<title>Ledger — Expense Tracker</title>
+<meta name="theme-color" content="#204E45" />
+<meta name="description" content="Monthly loan and expense tracker with salary-based cash flow." />
+
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" href="icons/icon-192.png" />
+<link rel="apple-touch-icon" href="icons/icon-192.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Ledger" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div id="app" class="ledger-app">
+  <div id="upcoming-banner"></div>
+  <div class="lg-eyebrow">Ledger · monthly cash flow</div>
+  <div class="lg-serif lg-title">Rye's expense tracker</div>
+
+  <div class="lg-card hero-card" id="hero-card">
+    <div class="hero-row" id="hero-row"></div>
+    <div class="settings-panel hidden" id="settings-panel">
+      <div class="field">
+        <label class="lg-label">Monthly salary (USD)</label>
+        <input class="lg-input" type="number" id="salary-usd" />
+      </div>
+      <div class="field">
+        <label class="lg-label">Conversion rate (PHP/USD)</label>
+        <input class="lg-input" type="number" id="rate" />
+      </div>
+    </div>
+  </div>
+
+  <div class="lg-card chart-card">
+    <div class="chart-heading"><span class="chart-icon">&#8599;</span> Net remaining, next 18 months</div>
+    <svg id="forecast-chart" viewBox="0 0 600 180" preserveAspectRatio="none" role="img" aria-label="Forecast of monthly net remaining balance over the next 18 months"></svg>
+    <div class="chart-labels" id="chart-labels"></div>
+  </div>
+
+  <div class="lg-card toolbar-card">
+    <div class="toolbar-row">
+      <button class="lg-btn" id="download-ics-btn">Download calendar reminders (.ics)</button>
+      <button class="lg-btn" id="enable-notif-btn">Enable in-app notifications</button>
+    </div>
+    <div class="toolbar-note">The calendar file works even when this app is closed — install it once on your phone. In-app notifications only fire while this app is open, as a bonus reminder.</div>
+  </div>
+
+  <div class="section-heading">
+    <span class="lg-eyebrow">Accounts</span>
+    <button class="lg-btn lg-btn-primary" id="add-account-btn">+ Add account</button>
+  </div>
+
+  <div id="add-form-container"></div>
+  <div id="accounts-list"></div>
+</div>
+
+<div id="lightbox" class="lightbox hidden"></div>
+<script src="app.js"></script>
+</body>
+</html>

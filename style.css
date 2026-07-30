@@ -1,0 +1,275 @@
+:root {
+  --paper: #EDF0EA;
+  --paper-2: #E4E8DF;
+  --ink: #1E2A28;
+  --ink-soft: #5B665F;
+  --rule: #C7CFC0;
+  --teal: #2F6F62;
+  --teal-deep: #204E45;
+  --rust: #A6452B;
+  --rust-deep: #7A311F;
+  --gold: #B98A2E;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Inter', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  min-height: 100dvh;
+}
+
+.ledger-app {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 1.5rem 1.1rem 3rem;
+}
+
+.lg-serif { font-family: 'Fraunces', serif; }
+.lg-mono { font-family: 'IBM Plex Mono', monospace; }
+
+.lg-eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.lg-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-top: 4px;
+  margin-bottom: 18px;
+}
+
+.lg-card {
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.hero-card { padding: 1.1rem 1.25rem; }
+
+.hero-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.hero-figure { min-width: 92px; }
+.hero-figure .fig-label {
+  font-size: 11px;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.hero-figure .fig-value {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.15;
+}
+.hero-figure.big .fig-value { font-size: 28px; }
+.hero-figure .fig-sub { font-size: 11px; color: var(--ink-soft); }
+
+.hero-sep { font-family: 'IBM Plex Mono', monospace; font-size: 20px; color: var(--ink-soft); }
+
+.settings-panel {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+  flex-wrap: wrap;
+}
+.settings-panel .field { min-width: 140px; flex: 1; }
+
+.hidden { display: none !important; }
+
+.lg-btn {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid var(--rule);
+  background: transparent;
+  color: var(--ink);
+  border-radius: 8px;
+  padding: 7px 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.lg-btn:active { background: rgba(0,0,0,0.06); }
+.lg-btn-primary { background: var(--teal); border-color: var(--teal); color: #fff; }
+.lg-btn-danger { color: var(--rust-deep); }
+
+.lg-input, select.lg-input {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 7px 8px;
+  background: #fff;
+  color: var(--ink);
+  width: 100%;
+}
+.lg-input:focus { outline: 2px solid var(--teal); outline-offset: 1px; }
+
+.lg-label {
+  font-size: 11px;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 3px;
+  display: block;
+}
+
+.chart-card { padding: 1.1rem 1.1rem 0.9rem; }
+.chart-heading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+.chart-icon { color: var(--teal-deep); font-size: 14px; }
+#forecast-chart { width: 100%; height: 150px; display: block; }
+.chart-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--ink-soft);
+  font-family: 'IBM Plex Mono', monospace;
+  margin-top: 2px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.account-card { padding: 0.9rem 1.1rem; margin-bottom: 10px; }
+.account-top { display: flex; align-items: center; gap: 12px; }
+.account-icon {
+  width: 34px; height: 34px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--paper); border: 1px solid var(--rule); flex-shrink: 0;
+  font-size: 16px; color: var(--teal-deep);
+}
+.account-info { flex: 1; min-width: 0; }
+.account-name { font-weight: 500; font-size: 14px; }
+.account-meta { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--ink-soft); }
+.account-balance { text-align: right; }
+.account-balance .amount { font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 600; }
+.account-balance .amount.owed { color: var(--rust-deep); }
+.account-balance .amount.paidoff { color: var(--teal-deep); }
+.account-balance .sub { font-size: 10.5px; color: var(--ink-soft); }
+.expand-btn {
+  border: 1px solid var(--rule); background: transparent; border-radius: 8px;
+  width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--ink); font-size: 14px;
+}
+
+.tally { display: flex; gap: 2px; height: 8px; margin-top: 10px; }
+.tally span { flex: 1; border-radius: 1px; background: var(--rule); }
+.tally span.filled { background: var(--teal); }
+
+.account-detail {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule);
+}
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+}
+.detail-actions { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
+.detail-actions .lg-btn-danger { margin-left: auto; }
+
+.add-form { padding: 1rem 1.1rem; margin-bottom: 12px; }
+.type-toggle { display: flex; gap: 8px; margin-bottom: 12px; }
+.type-toggle .lg-btn.active { background: var(--teal); color: #fff; border-color: var(--teal); }
+
+.empty-note { font-size: 13px; color: var(--ink-soft); padding: 1rem 0; }
+
+@media (max-width: 400px) {
+  .hero-figure { min-width: 76px; }
+  .hero-figure .fig-value { font-size: 18px; }
+  .hero-figure.big .fig-value { font-size: 22px; }
+}
+
+/* ---------- reminders / banner ---------- */
+.toolbar-card { padding: 0.9rem 1.1rem; }
+.toolbar-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.toolbar-note { font-size: 11.5px; color: var(--ink-soft); margin-top: 8px; line-height: 1.5; }
+
+.upcoming-banner-inner {
+  border: 1px solid var(--gold);
+  background: #FBF3E1;
+  border-radius: 10px;
+  padding: 0.7rem 0.9rem;
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+.upcoming-banner-inner.due-today { border-color: var(--rust); background: #F7E9E4; }
+.upcoming-banner-inner .row { display: flex; justify-content: space-between; gap: 8px; }
+.upcoming-banner-inner .row + .row { margin-top: 4px; }
+.upcoming-banner-inner .label { font-weight: 500; }
+.upcoming-banner-inner .amt { font-family: 'IBM Plex Mono', monospace; }
+
+/* ---------- receipts ---------- */
+.receipts-section { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--rule); }
+.receipts-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.receipt-upload-btn { cursor: pointer; }
+.receipts-gallery { display: flex; flex-wrap: wrap; gap: 8px; }
+.receipt-thumb {
+  position: relative;
+  width: 64px; height: 64px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--rule);
+  cursor: pointer;
+  background: #fff;
+}
+.receipt-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.receipt-thumb .del-receipt {
+  position: absolute; top: 2px; right: 2px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: rgba(0,0,0,0.55); color: #fff;
+  border: none; font-size: 11px; line-height: 18px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+.receipts-empty { font-size: 12px; color: var(--ink-soft); }
+
+.lightbox {
+  position: fixed; inset: 0; z-index: 999;
+  background: rgba(0,0,0,0.75);
+  display: flex; align-items: center; justify-content: center;
+  padding: 2rem;
+}
+.lightbox.hidden { display: none; }
+.lightbox img { max-width: 100%; max-height: 100%; border-radius: 8px; }
+.lightbox-close {
+  position: absolute; top: 1.2rem; right: 1.2rem;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: #fff; border: none; font-size: 16px; cursor: pointer;
+}
