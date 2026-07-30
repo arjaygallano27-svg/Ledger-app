@@ -244,8 +244,20 @@
     return state.paymentLogs[accountId + "|" + ym] || "";
   }
 
+  function earliestStartDate() {
+    var earliest = null;
+    state.accounts.forEach(function (a) {
+      if (a.type === "loan" && a.start) {
+        var parts = String(a.start).split("-");
+        var d = new Date(Number(parts[0]), Number(parts[1]) - 1, 1);
+        if (!earliest || d < earliest) earliest = d;
+      }
+    });
+    return earliest || new Date();
+  }
+
   function renderMonthly() {
-    var now = new Date();
+    var now = earliestStartDate();
     var horizon = 36;
     var accounts = state.accounts;
     var table = document.getElementById("monthly-table");
@@ -273,10 +285,14 @@
           cellsHtml += '<td><input type="date" data-acc="' + a.id + '" data-ym="' + ym + '" value="' + esc(loggedR) + '"></td>';
           cellsHtml += "<td>" + esc(peso(a.monthly)) + "</td>";
         } else {
-          var paymentNo = Number(a.paid) + i + 1;
-          var due = paymentNo <= Number(a.term);
+          // Calendar-based, from the account's own Start Month — matches the
+          // Excel "Monthly Tracker" sheet, independent of the "payments made" counter.
+          var startParts = String(a.start || "").split("-");
+          var startDate = startParts.length === 2 ? new Date(Number(startParts[0]), Number(startParts[1]) - 1, 1) : d;
+          var N = (d.getFullYear() - startDate.getFullYear()) * 12 + (d.getMonth() - startDate.getMonth()) + 1;
+          var due = N >= 1 && N <= Number(a.term);
           var amount = due ? Number(a.monthly) : 0;
-          var paidCount = Math.min(Number(a.term), paymentNo);
+          var paidCount = Math.min(Number(a.term), Math.max(0, N));
           var balance = loanRemaining(a, paidCount);
           total += amount;
           var logged = getPaymentLog(a.id, ym);
