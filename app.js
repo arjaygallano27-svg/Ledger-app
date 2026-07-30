@@ -255,7 +255,7 @@
       if (a.type === "loan") {
         thead += "<th>" + esc(a.name) + "<br>date paid</th><th>" + esc(a.name) + "<br>payment</th><th>" + esc(a.name) + "<br>balance</th>";
       } else {
-        thead += "<th>" + esc(a.name) + "</th>";
+        thead += "<th>" + esc(a.name) + "<br>date paid</th><th>" + esc(a.name) + "<br>payment</th>";
       }
     });
     thead += "<th>Total</th><th>Salary</th><th>Net</th></tr></thead>";
@@ -269,6 +269,8 @@
       accounts.forEach(function (a) {
         if (a.type === "recurring") {
           total += Number(a.monthly);
+          var loggedR = getPaymentLog(a.id, ym);
+          cellsHtml += '<td><input type="date" data-acc="' + a.id + '" data-ym="' + ym + '" value="' + esc(loggedR) + '"></td>';
           cellsHtml += "<td>" + esc(peso(a.monthly)) + "</td>";
         } else {
           var paymentNo = Number(a.paid) + i + 1;
